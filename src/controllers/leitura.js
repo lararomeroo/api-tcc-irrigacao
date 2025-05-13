@@ -3,10 +3,20 @@ const db = require('../dataBase/connection');
 module.exports = {
     async listarLeitura(request, response) {
         try {
+
+            const sql = `SELECT 
+            id_leitura, id_sensor, valor, data_hora, 
+            FROM leitura;`
+            ;
+
+            const [rows] = await db.query(sql);
+
             return response.status(200).json({
                 sucesso: true, 
                 mensagem: 'Lista de leitura', 
-                dados: null
+                dados: rows,
+                itens: rows.length,
+
             });
         } catch (error) {
             return response.status(500).json({

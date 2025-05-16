@@ -4,18 +4,19 @@ module.exports = {
     async listarLeitura(request, response) {
         try {
 
-            const sql = `SELECT 
-            id_leitura, id_sensor, valor, data_hora, 
-            FROM leitura;`
-            ;
+            const sql = `
+            SELECT 
+            id_leitura, id_sensor, valor, data_hora
+            FROM leitura;
+            `;
 
             const [rows] = await db.query(sql);
 
             return response.status(200).json({
                 sucesso: true, 
                 mensagem: 'Lista de leitura', 
-                dados: rows,
                 itens: rows.length,
+                dados: rows
 
             });
         } catch (error) {
@@ -28,10 +29,30 @@ module.exports = {
     }, 
     async cadastrarLeitura(request, response) {
         try {
+
+            const {id_sensor, valor, status, data_hora } = request.body;
+
+            const sql = `
+                INSERT INTO Leitura 
+                (id_sensor, valor, status, data_hora) 
+                VALUES
+                (?, ?, ?, ?);
+                `;
+
+                const values = [id_sensor, valor, status, data_hora];
+
+                const [result] = await db.query (sql, values);
+
+                const dados ={
+                    valor,
+                    status,
+                    data
+                };
+
             return response.status(200).json({
                 sucesso: true, 
                 mensagem: 'Cadastro de leitura', 
-                dados: null
+                dados: dados
             });
         } catch (error) {
             return response.status(500).json({

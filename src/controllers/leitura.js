@@ -6,7 +6,7 @@ module.exports = {
 
             const sql = `
             SELECT 
-            id_leitura, id_sensor, valor, data_hora
+            id_leitura, id_sensor, valor, status, data_hora
             FROM leitura;
             `;
 
@@ -30,11 +30,11 @@ module.exports = {
     async cadastrarLeitura(request, response) {
         try {
 
-            const {id_sensor, valor, status, data_hora } = request.body;
+            const {id_sensor, valor, status, data_hora} = request.body;
 
             const sql = `
                 INSERT INTO Leitura 
-                (id_sensor, valor, status, data_hora) 
+                (id_sensor, valor, status, data_hora)  
                 VALUES
                 (?, ?, ?, ?);
                 `;
@@ -46,7 +46,7 @@ module.exports = {
                 const dados ={
                     valor,
                     status,
-                    data
+                    data_hora
                 };
 
             return response.status(200).json({
@@ -79,10 +79,40 @@ module.exports = {
     }, 
     async apagarLeitura(request, response) {
         try {
+
+            const {id_sensor, valor, status, data_hora} = resquest.body;
+
+            const {id} = request.params;
+
+            const sql = `
+            UPDATE leitura SET
+            id_sensor = ? , valor = ?, status = ?, data_hora = ?
+            WHERE
+            id_leitura = ?;
+            `;
+
+            const values = [id_sensor, valor, status, data_hora];
+
+            const [result] = await db.query (sql, values);
+
+            if (result.affectedRows === 0) {
+                return response.status(404).json({
+                    sucesso: false,
+                    mensagem: `Leitura ${id} não encontrado!`,
+                    dados: null
+                });
+            }
+
+            const dados ={
+                valor,
+                status,
+                data_hora
+            };
+
             return response.status(200).json({
                 sucesso: true, 
-                mensagem: 'Exclusão de usuário', 
-                dados: null
+                mensagem: `Leitura ${id} atualizado com sucesso!`, 
+                dados
             });
         } catch (error) {
             return response.status(500).json({

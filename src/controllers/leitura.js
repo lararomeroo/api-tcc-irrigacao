@@ -64,23 +64,8 @@ module.exports = {
     }, 
     async editarLeitura(request, response) {
         try {
-            return response.status(200).json({
-                sucesso: true, 
-                mensagem: 'Alteração no cadastro de usuário', 
-                dados: null
-            });
-        } catch (error) {
-            return response.status(500).json({
-                sucesso: false, 
-                mensagem: 'Erro na requisição.', 
-                dados: error.message
-            });
-        }
-    }, 
-    async apagarLeitura(request, response) {
-        try {
 
-            const {id_sensor, valor, status, data_hora} = resquest.body;
+            const {id_sensor, valor, status, data_hora} = request.body;
 
             const {id} = request.params;
 
@@ -109,6 +94,23 @@ module.exports = {
                 data_hora
             };
 
+            return response.status(200).json({
+                sucesso: true, 
+                mensagem: `Leitura ${id} atualizado com sucesso!`, 
+                dados
+            });
+        } catch (error) {
+            return response.status(500).json({
+                sucesso: false, 
+                mensagem: 'Erro na requisição.', 
+                dados: error.message
+            });
+        }
+    }, 
+    async apagarLeitura(request, response) {
+        try {
+
+           
             return response.status(200).json({
                 sucesso: true, 
                 mensagem: `Leitura ${id} atualizado com sucesso!`, 

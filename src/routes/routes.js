@@ -5,7 +5,7 @@ const LeituraController = require('../controllers/leitura');
 
 router.get('/leitura', LeituraController.listarLeitura); 
 router.post('/leitura', LeituraController.cadastrarLeitura); 
-router.patch('/leitura', LeituraController.editarLeitura); 
+router.patch('/leitura/:id', LeituraController.editarLeitura); 
 router.delete('/leitura', LeituraController.apagarLeitura); 
 
 

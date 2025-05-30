@@ -76,7 +76,7 @@ module.exports = {
             id_leitura = ?;
             `;
 
-            const values = [id_sensor, valor, status, data_hora];
+            const values = [id_sensor, valor, status, data_hora, id] ;
 
             const [result] = await db.query (sql, values);
 
@@ -109,13 +109,30 @@ module.exports = {
     }, 
     async apagarLeitura(request, response) {
         try {
+            
+            const { id } = request.params;
 
-           
-            return response.status(200).json({
-                sucesso: true, 
-                mensagem: `Leitura ${id} atualizado com sucesso!`, 
-                dados
+            const sql = 'DELETE FROM leitura WHERE id=?';
+
+            const values = [id];
+
+            const [result] = await db.query (sql,values);
+
+    
+            if (result.affectedRows === 0){
+            return response.status(404).json({
+                sucesso: false, 
+                mensagem: `Leitura ${id} não encontrado!`, 
+                dados: null
             });
+        }
+            
+            return response.status(200).json({
+            sucesso: true, 
+            mensagem: `Leitura ${id} excluído comn sucesso!`, 
+            dados: null
+        });
+
         } catch (error) {
             return response.status(500).json({
                 sucesso: false, 

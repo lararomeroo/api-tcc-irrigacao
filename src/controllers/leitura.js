@@ -112,13 +112,12 @@ module.exports = {
             
             const { id } = request.params;
 
-            const sql = 'DELETE FROM leitura WHERE id=?';
+            const sql = 'DELETE FROM leitura WHERE id_leitura = ?';
 
             const values = [id];
 
             const [result] = await db.query (sql,values);
 
-    
             if (result.affectedRows === 0){
             return response.status(404).json({
                 sucesso: false, 

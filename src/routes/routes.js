@@ -1,12 +1,8 @@
 const express = require('express'); 
 const router = express.Router(); 
 
-const LeituraController = require('../controllers/leitura'); 
+const RotasLara = require('./routes-lara'); 
 
-router.get('/leitura', LeituraController.listarLeitura); 
-router.post('/leitura', LeituraController.cadastrarLeitura); 
-router.patch('/leitura/:id', LeituraController.editarLeitura); 
-router.delete('/leitura/:id', LeituraController.apagarLeitura); 
-
+router.use('/', RotasLara);
 
 module.exports = router;

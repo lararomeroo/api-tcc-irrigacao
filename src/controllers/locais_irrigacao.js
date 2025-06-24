@@ -1,4 +1,5 @@
-const db = require('../database/connection');
+// const db = require('../database/connection.JS'); 
+const db = require('../dataBase/connection'); 
 
 module.exports = {
     async listarlocais_irrigacao(request, response) {

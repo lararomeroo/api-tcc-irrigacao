@@ -1,9 +1,8 @@
 const express = require('express'); 
 const router = express.Router(); 
 
-const MensagensController = require('./routes-mariajulia'); 
+const MensagensController = require('../controllers/mensagens'); 
 
-router.use('/', RotasMariajulia);
 
 router.get('/mensagens', MensagensController.listarMensagens); 
 router.post('/mensagens', MensagensController.cadastrarMensagens); 

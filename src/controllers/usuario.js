@@ -1,13 +1,12 @@
 const db = require('../database/connection');
-// const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');
 
 module.exports = {
     async listarUsuarios(request, response) {
         try {
             const sql = `
                 SELECT id_usu, tipo_usu, nome, email, telefone, criado_em
-                FROM usuario
-                WHERE ativo = 1;
+                FROM usuario;
             `;
             const [rows] = await db.query(sql);
 
@@ -30,12 +29,13 @@ module.exports = {
         try {
             const { tipo_usu, nome, email, senha, telefone } = request.body;
             const hashedSenha = await bcrypt.hash(senha, 10); // 🔒 criptografa
+            let dataTemp = '2025-09-04';
 
             const sql = `
-                INSERT INTO usuario (tipo_usu, nome, email, senha, telefone, criado_em, ativo)
-                VALUES (?, ?, ?, ?, ?, NOW(), 1);
+                INSERT INTO usuario (tipo_usu, nome, email, senha, telefone, criado_em)
+                VALUES (?, ?, ?, ?, ?, NOW());
             `;
-            const values = [tipo_usu, nome, email, hashedSenha, telefone];
+            const values = [tipo_usu, nome, email, senha, telefone, dataTemp];
             const [result] = await db.query(sql, values);
 
             const dados = {

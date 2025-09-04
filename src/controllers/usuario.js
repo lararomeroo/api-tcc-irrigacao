@@ -1,5 +1,5 @@
 const db = require('../database/connection');
-const bcrypt = require('bcrypt');
+// const bcrypt = require('bcrypt');
 
 module.exports = {
     async listarUsuarios(request, response) {

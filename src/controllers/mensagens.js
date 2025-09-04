@@ -1,15 +1,13 @@
-const db = require('../dataBase/connection'); 
+const db = require('../database/connection'); // padronizado
 
 module.exports = {
     async listarMensagens(request, response) {
         try {
-             
             const sql = `
-            SELECT
-             id_mens, id_remetente, id_destinatario, data_hora, texto 
-             FROM mensagens;
+                SELECT id_mens, id_remetente, id_destinatario, data_hora, texto, status
+                FROM mensagens;
             `;
-            const [rows] =  await db.query(sql);
+            const [rows] = await db.query(sql);
 
             return response.status(200).json({
                 sucesso: true, 
@@ -25,33 +23,31 @@ module.exports = {
             });
         }
     }, 
+
     async cadastrarMensagens(request, response) {
         try {
-
-            const {id_remetente, id_destinatario, data_hora, texto} = request.body;
+            const { id_remetente, id_destinatario, texto } = request.body;
             const status = 1;
 
             const sql = `
-           INSERT INTO Mensagens
-            (id_remetente, id_destinatario, data_hora, texto, status)
-             VALUES
-            (?, ?, ?, ?, ?)
+                INSERT INTO mensagens (id_remetente, id_destinatario, data_hora, texto, status)
+                VALUES (?, ?, NOW(), ?, ?);
             `;
-
-            const values = [id_remetente, id_destinatario, data_hora, texto, status];
-
-            const [result] =  await db.query(sql, values);
+            const values = [id_remetente, id_destinatario, texto, status];
+            const [result] = await db.query(sql, values);
 
             const dados = {
                 id_mens: result.insertId,
                 id_remetente,
-                id_destinatario
+                id_destinatario,
+                texto,
+                status
             };
 
-            return response.status(200).json({
+            return response.status(201).json({
                 sucesso: true, 
-                mensagem: 'Cadastro de mensagens', 
-                dados: dados
+                mensagem: 'Mensagem cadastrada com sucesso!', 
+                dados
             });
         } catch (error) {
             return response.status(500).json({
@@ -61,38 +57,30 @@ module.exports = {
             });
         }
     }, 
+
     async editarMensagens(request, response) {
         try {
-            const {id_remetente, id_destinatario, data_hora, texto} = request.body;
-        const status = 1;
+            const { id_remetente, id_destinatario, texto } = request.body;
+            const status = 1;
+            const { id_mens } = request.params;
 
-        const {id_mens} = request.params;
+            const sql = `
+                UPDATE mensagens SET
+                id_remetente = ?, id_destinatario = ?, texto = ?, status = ?
+                WHERE id_mens = ?;
+            `;
+            const values = [id_remetente, id_destinatario, texto, status, id_mens];
+            const [result] = await db.query(sql, values);
 
-        const sql = `
-       UPDATE Mensagens SET
-            id_remetente = ?, id_destinatario = ?, data_hora = ?, texto = ?, status= ?
-       WHERE
-            id_mens = ?;
-    
-        `;
+            if (result.affectedRows === 0) {
+                return response.status(404).json({
+                    sucesso: false,
+                    mensagem: `Mensagem ${id_mens} não encontrada.`,
+                    dados: null
+                });
+            }
 
-        const values = [id_remetente, id_destinatario, data_hora, texto, status, id_mens];
-
-        const [result] =  await db.query(sql, values);
-
-        if (result.affectedRows ==0){
-            return response.status(404).json({
-                sucesso: false,
-                mensagem: `Mensagem ${id_mens} não encontrado`,
-                dados: null
-            });
-        }
-
-        const dados = {
-            id_mens: result.insertId,
-            id_remetente,
-            id_destinatario
-        };
+            const dados = { id_mens, id_remetente, id_destinatario, texto, status };
 
             return response.status(200).json({
                 sucesso: true, 
@@ -107,22 +95,25 @@ module.exports = {
             });
         }
     }, 
+
     async apagarMensagens(request, response) {
         try {
-             
-            const {id_mens} = request.params;
+            const { id_mens } = request.params;
 
-        const sql = `
-        DELETE FROM Mensagens WHERE id_mens = ?
-        `;
+            const sql = `DELETE FROM mensagens WHERE id_mens = ?`;
+            const [result] = await db.query(sql, [id_mens]);
 
-        const values = [id_mens];
-
-        const [result] =  await db.query(sql, values);
+            if (result.affectedRows === 0) {
+                return response.status(404).json({
+                    sucesso: false,
+                    mensagem: `Mensagem ${id_mens} não encontrada.`,
+                    dados: null
+                });
+            }
 
             return response.status(200).json({
                 sucesso: true, 
-                mensagem: `Exclusão de mensagem ${id_mens}`, 
+                mensagem: `Mensagem ${id_mens} excluída com sucesso.`, 
                 dados: null
             });
         } catch (error) {
@@ -133,4 +124,4 @@ module.exports = {
             });
         }
     }, 
-};  
+};

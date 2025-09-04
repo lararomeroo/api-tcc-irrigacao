@@ -1,15 +1,12 @@
-// const db = require('../database/connection.JS'); 
-const db = require('../dataBase/connection'); 
+const db = require('../database/connection'); // nome padronizado, sem .JS
 
 module.exports = {
     async listarConfiguracoes(request, response) {
         try {
-
             const sql = `
-                SELECT
-                id_config, id_loc_irriga, umid_min, umid_max, temp_max, criado_em 
+                SELECT id_config, id_loc_irriga, umid_min, umid_max, temp_max, criado_em 
                 FROM configuracoes;
-                `;   
+            `;   
 
             const [rows] = await db.query(sql);            
 
@@ -27,33 +24,24 @@ module.exports = {
             });
         }
     }, 
+
     async cadastrarConfiguracoes(request, response) {
         try {
+            const { id_loc_irriga, umid_min, umid_max, temp_max } = request.body;
 
-        const { id_loc_irriga, umid_min, umid_max, temp_max, criado_em } = request.body;
-        const configuracoes_ativo = 1;
+            const sql = `
+                INSERT INTO configuracoes
+                (id_loc_irriga, umid_min, umid_max, temp_max, criado_em) 
+                VALUES (?, ?, ?, ?, NOW());
+            `;
+            
+            const values = [id_loc_irriga, umid_min, umid_max, temp_max];
+            await db.query(sql, values);
 
-        const sql = `
-        INSERT INTO Configuracoes
-         (id_loc_irriga, umid_min, umid_max, temp_max, criado_em) 
-        VALUES
-        (?, ?, ?, ?, NOW());
-        `
-        
-        const values = [id_loc_irriga, umid_min, umid_max, temp_max, criado_em];
-
-        const [result] = await db.query(sql, values);
-
-        const dados = {
-            umid_min,
-            umid_max
-        };
-        
-
-            return response.status(200).json({
+            return response.status(201).json({
                 sucesso: true, 
-                mensagem: 'Cadastro de configurações', 
-                dados: dados
+                mensagem: 'Configuração cadastrada com sucesso', 
+                dados: { id_loc_irriga, umid_min, umid_max, temp_max }
             });
         } catch (error) {
             return response.status(500).json({
@@ -63,39 +51,33 @@ module.exports = {
             });
         }
     }, 
+
     async editarConfiguracoes(request, response) {
         try {
-
-            const {id_loc_irriga, umid_min, umid_max, temp_max, criado_em,} = request.body;
+            const { id_loc_irriga, umid_min, umid_max, temp_max } = request.body;
             const { id } = request.params;
-            const sql = `
-                  UPDATE configuracoes SET
-                 id_loc_irriga = ?, umid_min = ?, umid_max = ?, temp_max = ?, criado_em = ? 
-                WHERE
-                 id_config = ?;
-                `;    
 
-            const values = [id_loc_irriga, umid_min,  umid_max, temp_max, criado_em, id];
+            const sql = `
+                UPDATE configuracoes SET
+                id_loc_irriga = ?, umid_min = ?, umid_max = ?, temp_max = ?
+                WHERE id_config = ?;
+            `;    
+
+            const values = [id_loc_irriga, umid_min, umid_max, temp_max, id];
             const [result] = await db.query(sql, values);
 
             if (result.affectedRows === 0) { 
                 return response.status(404).json({ 
-                sucesso: false, 
-                mensagem: `Usuário ${id} não encontrado!`, 
-                dados: null 
+                    sucesso: false, 
+                    mensagem: `Configuração ${id} não encontrada!`, 
+                    dados: null 
                 }); 
             }
 
-            const dados = { 
-                umid_min, 
-                umid_max
-                };
-
-
             return response.status(200).json({
                 sucesso: true, 
-                mensagem: `Usuário ${id} atualizado com sucesso!`, 
-                dados
+                mensagem: `Configuração ${id} atualizada com sucesso!`, 
+                dados: { id_loc_irriga, umid_min, umid_max, temp_max }
             });
         } catch (error) {
             return response.status(500).json({
@@ -105,33 +87,27 @@ module.exports = {
             });
         }
     }, 
+
     async apagarConfiguracoes(request, response) {
         try {
-             const { id } = request.params;
-             const sql = `DELETE FROM configuracoes WHERE id_config = ?`;
-             const values = [id];
-             const [result] = await db.query(sql, values);
+            const { id } = request.params;
+            const sql = `DELETE FROM configuracoes WHERE id_config = ?`;
+            const [result] = await db.query(sql, [id]);
 
-             if (result.affectedRows == 0) {
-                return response.status (404).json({
+            if (result.affectedRows == 0) {
+                return response.status(404).json({
                     sucesso: false,
-                    mensagem: `Configuração ${id} não encontrado!`,
+                    mensagem: `Configuração ${id} não encontrada!`,
                     dados: null
                 });
-             }
-
+            }
 
             return response.status(200).json({
                 sucesso: true, 
-                mensagem: `Configuração ${id} excluído com sucesso`, 
+                mensagem: `Configuração ${id} excluída com sucesso`, 
                 dados: null
-            
-              });
-
-            } 
-
-
-            catch (error) {
+            });
+        } catch (error) {
             return response.status(500).json({
                 sucesso: false, 
                 mensagem: 'Erro na requisição.', 
@@ -139,4 +115,4 @@ module.exports = {
             });
         }
     }, 
-};  
+};

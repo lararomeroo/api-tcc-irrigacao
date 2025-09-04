@@ -1,21 +1,17 @@
-const db = require('../dataBase/connection'); 
+const db = require('../database/connection'); // padronizado
 
 module.exports = {
     async listarSensor(request, response) {
         try {
-            
-           const sql = `
-            SELECT 
-           id_sensor, id_loc_irriga, tipo_sensor 
-           FROM sensor;
-           `;
-          
-           const [rows] = await db.query(sql);
-
+            const sql = `
+                SELECT id_sensor, id_loc_irriga, tipo_sensor 
+                FROM sensor;
+            `;
+            const [rows] = await db.query(sql);
 
             return response.status(200).json({
                 sucesso: true, 
-                mensagem: 'Lista de sensor', 
+                mensagem: 'Lista de sensores', 
                 itens: rows.length,
                 dados: rows
             });
@@ -27,33 +23,28 @@ module.exports = {
             });
         }
     }, 
+
     async cadastrarSensor(request, response) {
         try {
-
-            const {id_loc_irriga, tipo_sensor} = request.body;
-            const sensor_ativo = 1;
-
+            const { id_loc_irriga, tipo_sensor } = request.body;
 
             const sql = `
-           INSERT INTO Sensor
-            (id_loc_irriga, tipo_sensor) 
-           VALUES
-            (?, ?);
-            `
-
+                INSERT INTO sensor (id_loc_irriga, tipo_sensor)
+                VALUES (?, ?);
+            `;
             const values = [id_loc_irriga, tipo_sensor];
-
             const [result] = await db.query(sql, values);
 
             const dados = {
+                id_sensor: result.insertId,
+                id_loc_irriga,
                 tipo_sensor
             };
 
-
-            return response.status(200).json({
+            return response.status(201).json({
                 sucesso: true, 
-                mensagem: 'Cadastro de sensor realizado', 
-                dados: dados
+                mensagem: 'Sensor cadastrado com sucesso!', 
+                dados
             });
         } catch (error) {
             return response.status(500).json({
@@ -63,20 +54,16 @@ module.exports = {
             });
         }
     }, 
+
     async editarSensor(request, response) {
         try {
-
-            const {id_loc_irriga, tipo_sensor} = request.body;
-
+            const { id_loc_irriga, tipo_sensor } = request.body;
             const { id } = request.params;
 
             const sql = `
-            UPDATE sensor SET 
-            id_loc_irriga = ?, 
-            tipo_sensor = ?
-            WHERE
-            id_sensor = ?;
-            `
+                UPDATE sensor SET id_loc_irriga = ?, tipo_sensor = ?
+                WHERE id_sensor = ?;
+            `;
             const values = [id_loc_irriga, tipo_sensor, id];
             const [result] = await db.query(sql, values);
 
@@ -88,10 +75,7 @@ module.exports = {
                 });
             }
 
-            const dados = {
-                tipo_sensor
-            };
-
+            const dados = { id_sensor: id, id_loc_irriga, tipo_sensor };
 
             return response.status(200).json({
                 sucesso: true, 
@@ -106,18 +90,14 @@ module.exports = {
             });
         }
     }, 
+
     async apagarSensor(request, response) {
         try {
-
             const { id } = request.params;
 
             const sql = `DELETE FROM sensor WHERE id_sensor = ?`;
+            const [result] = await db.query(sql, [id]);
 
-            const values = [id];
-
-            const [result] = await db.query(sql, values);
-
-            
             if (result.affectedRows === 0) {
                 return response.status(404).json({
                     sucesso:false,
@@ -128,7 +108,7 @@ module.exports = {
 
             return response.status(200).json({
                 sucesso: true, 
-                mensagem: `Sensor ${id} excluido com sucesso`,
+                mensagem: `Sensor ${id} excluído com sucesso.`,
                 dados: null
             });
         } catch (error) {
@@ -137,7 +117,6 @@ module.exports = {
                 mensagem: 'Erro na requisição.', 
                 dados: error.message
             });
-
         }
     }, 
-};  
+};

@@ -64,17 +64,17 @@ module.exports = {
             const { tipo_usu, nome, email, senha, telefone } = request.body;
             const { id_usu } = request.params;
 
-            const hashedSenha = senha ? await bcrypt.hash(senha, 10) : undefined;
+            // const hashedSenha = senha ? await bcrypt.hash(senha, 10) : undefined;
 
             const sql = `
                 UPDATE usuario SET 
                 tipo_usu = ?, nome = ?, email = ?, 
                 ${senha ? "senha = ?," : ""} telefone = ?
-                WHERE id_usu = ? AND ativo = 1;
+                WHERE id_usu = ?;
             `;
 
             const values = senha 
-                ? [tipo_usu, nome, email, hashedSenha, telefone, id_usu]
+                ? [tipo_usu, nome, email, senha, telefone, id_usu]
                 : [tipo_usu, nome, email, telefone, id_usu];
 
             const [result] = await db.query(sql, values);
@@ -106,7 +106,7 @@ module.exports = {
     async apagarUsuarios(request, response) {
         try {
             const { id_usu } = request.params;
-            const sql = `UPDATE usuario SET ativo = 0 WHERE id_usu = ?`;
+            const sql = `DELETE FROM usuario WHERE id_usu = ?`;
             const [result] = await db.query(sql, [id_usu]);
 
             if (result.affectedRows === 0) {
@@ -119,7 +119,7 @@ module.exports = {
 
             return response.status(200).json({
                 sucesso: true,
-                mensagem: `Usuário ${id_usu} excluído com sucesso (soft delete).`,
+                mensagem: `Usuário ${id_usu} excluído com sucesso.`,
                 dados: null
             });
         } catch (error) {

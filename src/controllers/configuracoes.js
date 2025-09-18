@@ -1,19 +1,32 @@
 const db = require('../database/connection'); // nome padronizado, sem .JS
 
 module.exports = {
+
     async listarConfiguracoes(request, response) {
         try {
+
+            const { umidade } = request.query;
+
+            const umid_min = umidade  ? `%${umidade}%` : `%`;
+
             const sql = `
-                SELECT id_config, id_loc_irriga, umid_min, umid_max, temp_max, criado_em 
-                FROM configuracoes;
+                SELECT 
+                    id_config, id_loc_irriga, umid_min, umid_max, temp_max, criado_em 
+                FROM    
+                    configuracoes;
+                WHERE
+                    umid_min like ?;
             `;   
 
-            const [rows] = await db.query(sql);            
+            const values = [umid_min];
+
+            const [rows] = await db.query(sql, values);  
+            const nItens = rows.length;          
 
             return response.status(200).json({
                 sucesso: true, 
                 mensagem: 'Lista de configurações',
-                itens: rows.length, 
+                nItens,
                 dados: rows
             });
         } catch (error) {

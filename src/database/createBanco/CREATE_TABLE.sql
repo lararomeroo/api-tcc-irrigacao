@@ -5,7 +5,7 @@ CREATE TABLE Usuario (
     email VARCHAR(100) UNIQUE,
     senha VARCHAR(20),
     criado_em DATETIME,
-    telefone VARCHAR(15),
+    telefone VARCHAR(15)
 );
 
 CREATE TABLE Mensagens (

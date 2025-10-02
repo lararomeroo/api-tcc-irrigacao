@@ -6,6 +6,7 @@ module.exports = {
             const sql = `
                 SELECT id_leitura, id_sensor, valor, status, data_hora
                 FROM leitura;
+                
             `;
             const [rows] = await db.query(sql);
 
@@ -111,4 +112,34 @@ module.exports = {
             });
         }
     }, 
+
+    async buscarLeituraPorUsuarioETipo(request, response) {
+        try {
+            const { id_usu, tipo_sensor } = request.query;
+            const sql = `
+                SELECT l.id_leitura, l.id_sensor, l.valor, l.status, l.data_hora
+                FROM leitura l
+                JOIN sensor s ON l.id_sensor = s.id_sensor
+                JOIN locais_irrigacao li ON s.id_loc_irriga = li.id_loc_irriga
+                WHERE li.id_usu = ? AND s.tipo_sensor = ?
+                ORDER BY l.data_hora DESC
+                LIMIT 1;
+            `;
+            const values = [id_usu, tipo_sensor];
+            const [rows] = await db.query(sql, values);
+
+            return response.status(200).json({
+                sucesso: true,
+                mensagem: `Última leitura de ${tipo_sensor} do usuário ${id_usu}`,
+                itens: rows.length,
+                dados: rows
+            });
+        } catch (error) {
+            return response.status(500).json({
+                sucesso: false,
+                mensagem: 'Erro na requisição.',
+                dados: error.message
+            });
+        }
+    },
 };

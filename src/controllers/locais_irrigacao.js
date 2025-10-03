@@ -3,16 +3,26 @@ const db = require('../database/connection'); // padronizado
 module.exports = {
     async listarLocaisIrrigacao(request, response) {
         try {
+
+            const { local } =request.query;
             const sql = `
-                SELECT id_loc_irriga, nome, status, id_usu
-                FROM locais_irrigacao;
+                SELECT
+                    id_loc_irriga, nome, status, id_usu
+                FROM 
+                    locais_irrigacao;
+                WHERE
+                    id_loc_irriga like?; 
             `;
-            const [rows] = await db.query(sql);
+
+            const values = [id_loc_irriga];
+
+            const [rows] = await db.query(sql, values);
+            const nItens = rowa.length;
 
             return response.status(200).json({
                 sucesso: true,
                 mensagem: 'Lista de locais de irrigação',
-                itens: rows.length,
+                nItens,
                 dados: rows
             });
         } catch (error) {

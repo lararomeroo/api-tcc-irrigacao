@@ -4,7 +4,8 @@ module.exports = {
     async listarConfiguracoes(request, response) {
         try {
             const sql = `
-                SELECT id_config, id_loc_irriga, umid_min, umid_max, temp_max, criado_em 
+                SELECT
+                id_config, id_loc_irriga, umid_min, umid_max, temp_max, criado_em 
                 FROM configuracoes;
             `;   
 

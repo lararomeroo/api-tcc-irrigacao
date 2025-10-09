@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 module.exports = {
     async listarUsuarios(request, response) {
         try {
+
             const sql = `
                 SELECT id_usu, tipo_usu, nome, email, telefone, criado_em
                 FROM usuario;

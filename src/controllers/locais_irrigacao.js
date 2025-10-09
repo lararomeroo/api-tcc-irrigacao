@@ -4,20 +4,20 @@ module.exports = {
     async listarLocaisIrrigacao(request, response) {
         try {
 
-            const { local } =request.query;
+            const { id_usu = '%' } = request.query;
             const sql = `
                 SELECT
                     id_loc_irriga, nome, status, id_usu
                 FROM 
-                    locais_irrigacao;
-                WHERE
-                    id_loc_irriga like?; 
+                    locais_irrigacao 
+                WHERE 
+                    id_loc_irriga like ?; 
             `;
 
-            const values = [id_loc_irriga];
+            const values = [id_usu];
 
             const [rows] = await db.query(sql, values);
-            const nItens = rowa.length;
+            const nItens = rows.length;
 
             return response.status(200).json({
                 sucesso: true,

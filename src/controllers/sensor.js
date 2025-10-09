@@ -3,16 +3,26 @@ const db = require('../database/connection'); // padronizado
 module.exports = {
     async listarSensor(request, response) {
         try {
+            
+            const { id_loc_irriga = '%' } = request.query;
             const sql = `
-                SELECT id_sensor, id_loc_irriga, tipo_sensor 
-                FROM sensor;
+                SELECT 
+                    id_sensor, id_loc_irriga, tipo_sensor 
+                FROM
+                    sensor
+                WHERE 
+                    id_sensor like ?; 
             `;
-            const [rows] = await db.query(sql);
+
+            const values = [id_loc_irriga];
+
+            const [rows] = await db.query(sql, values);
+             const nItens = rows.length;
 
             return response.status(200).json({
                 sucesso: true, 
                 mensagem: 'Lista de sensores', 
-                itens: rows.length,
+                nItens,
                 dados: rows
             });
         } catch (error) {

@@ -53,3 +53,14 @@ CREATE TABLE Leitura (
     FOREIGN KEY (id_sensor) REFERENCES Sensor(id_sensor)
 );
 
+-- Tabela para login do projeto
+CREATE TABLE Login (
+    id_login INT AUTO_INCREMENT PRIMARY KEY,
+    id_usu INT,
+    email VARCHAR(100),
+    senha VARCHAR(255),
+    telefone VARCHAR(15),
+    ultimo_login DATETIME,
+    FOREIGN KEY (id_usu) REFERENCES Usuario(id_usu)
+);
+

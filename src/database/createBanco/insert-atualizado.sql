@@ -51,3 +51,12 @@ INSERT INTO Mensagens (id_remetente, id_destinatario, data_hora, texto, status) 
 (2, 1, '2025-10-02 08:05:00', 'Verificado, iniciando irrigação.', false),
 (4, 5, '2025-10-02 09:00:00', 'Temperatura elevada na Horta Orgânica.', true),
 (5, 4, '2025-10-02 09:10:00', 'Ajuste realizado na ventilação do viveiro.', false);
+
+-- Inserção de login do projeto
+INSERT INTO Usuario (tipo_usu, nome, email, senha, criado_em, telefone) VALUES
+('Administrador', 'Admin Projeto', 'admin@projeto.local', 'senhaAdmin123', '2025-10-16 08:00:00', '11900000000');
+('Usuario', 'João Silva', 'joao@example.com', 'senhaJoao123', '2025-10-16 09:00:00', '11911111111'),
+('Usuario', 'Maria Souza', 'maria@example.com', 'senhaMaria123', '2025-10-16 09:05:00', '11922222222'),
+('Tecnico', 'Carlos Lima', 'carlos@example.com', 'senhaCarlos123', '2025-10-16 09:10:00', '11933333333');
+
+

@@ -2,46 +2,6 @@ const db = require('../database/connection');
 const bcrypt = require('bcrypt');
 
 module.exports = {
-    async login(request, response) {
-        try {
-            
-            const { email, senha } = request.query;
-            const sql = `
-                SELECT 
-                   id_usu, tipo_usu, nome, email, telefone, criado_em
-                FROM
-                    usuarios
-                WHERE 
-                    usu_usu = ? AND usu_senha = 1
-            `;
-
-            const values = [email, senha];
-
-            const [rows] = await db.query(sql, values);
-             const nItens = rows.length;
-
-            if (nItens < 1) {
-                return response.status(403).json({
-                    sucesso: false,
-                    mensagem: 'Login e/ou senha inválidos.',
-                    dados: null,
-                })
-           }
-
-           return response.status(200).json({
-                sucesso: true,
-                mensagem: 'Login efetuado com sucesso.',
-                dados: rows
-            });
-            
-        }catch (error) {
-            return response.status(500).json({
-                sucesso: false,
-                mensagem: 'Erro na requisição.',
-                dados: error.message
-            });
-        }
-    },
 
     async listarUsuarios(request, response) {
         try {
@@ -181,5 +141,47 @@ module.exports = {
                 dados: error.message
             });
         }
-    }
+    },
+
+        async login(request, response) {
+        try {
+            
+            const { email, senha } = request.query;
+            const sql = `
+                SELECT 
+                   id_usu, tipo_usu, nome, email, telefone, criado_em
+                FROM
+                    usuario
+                WHERE 
+                    id_usu = ? AND usu_senha = ?;
+            `;
+
+            const values = [email, senha];
+
+            const [rows] = await db.query(sql, values);
+             const nItens = rows.length;
+
+            if (nItens < 1) {
+                return response.status(403).json({
+                    sucesso: false,
+                    mensagem: 'Login e/ou senha inválidos.',
+                    dados: null,
+                })
+           }
+
+           return response.status(200).json({
+                sucesso: true,
+                mensagem: 'Login efetuado com sucesso.',
+                dados: rows
+            });
+            
+        }catch (error) {
+            return response.status(500).json({
+                sucesso: false,
+                mensagem: 'Erro na requisição.',
+                dados: error.message
+            });
+        }
+    },
+
 };

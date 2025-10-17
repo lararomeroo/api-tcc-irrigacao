@@ -5,7 +5,7 @@ module.exports = {
 
     async listarUsuarios(request, response) {
         try {
-            
+
             const { id_usu = '%' } = request.query;
             const sql = `
                 SELECT 
@@ -19,7 +19,7 @@ module.exports = {
             const values = [id_usu];
 
             const [rows] = await db.query(sql, values);
-             const nItens = rows.length;
+            const nItens = rows.length;
 
             return response.status(200).json({
                 sucesso: true,
@@ -85,7 +85,7 @@ module.exports = {
                 WHERE id_usu = ?;
             `;
 
-            const values = senha 
+            const values = senha
                 ? [tipo_usu, nome, email, senha, telefone, id_usu]
                 : [tipo_usu, nome, email, telefone, id_usu];
 
@@ -143,45 +143,46 @@ module.exports = {
         }
     },
 
-        async login(request, response) {
+    async login(request, response) {
         try {
-            
             const { email, senha } = request.query;
             const sql = `
-                SELECT 
-                   id_usu, tipo_usu, nome, email, telefone, criado_em
-                FROM
-                    usuario
-                WHERE 
-                    id_usu = ? AND usu_senha = ?;
+                SELECT id_usu, tipo_usu, nome, email, senha, telefone, criado_em 
+                FROM usuario 
+                WHERE email = ? AND senha = ?;
             `;
 
             const values = [email, senha];
 
             const [rows] = await db.query(sql, values);
-             const nItens = rows.length;
 
-            if (nItens < 1) {
+            if (rows.length === 0) {
                 return response.status(403).json({
                     sucesso: false,
-                    mensagem: 'Login e/ou senha inválidos.',
+                    mensagem: 'Usuário ou senha inválidos.',
                     dados: null,
-                })
-           }
+                });
+            }
 
-           return response.status(200).json({
+            const usuario = {
+                id_usu: rows[0].id_usu,
+                tipo_usu: rows[0].tipo_usu,
+                nome: rows[0].nome,
+            };
+
+            return response.status(200).json({
                 sucesso: true,
                 mensagem: 'Login efetuado com sucesso.',
-                dados: rows
+                dados: usuario,
             });
-            
-        }catch (error) {
+
+        } catch (error) {
             return response.status(500).json({
                 sucesso: false,
                 mensagem: 'Erro na requisição.',
                 dados: error.message
             });
         }
-    },
+    }
 
 };

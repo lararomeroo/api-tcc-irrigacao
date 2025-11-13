@@ -1,5 +1,6 @@
 const db = require('../database/connection');
 const bcrypt = require('bcrypt');
+const validarEmail = require('./utils/validar_email');
 
 module.exports = {
     async listarUsuarios(request, response) {
@@ -33,10 +34,18 @@ module.exports = {
                 senha,
                 telefone
              } = request.body;
+        if(
+            !nome || !email || !senha || !telefone
+        ) {
+            return response.status(400).json({
+                 sucesso: false,
+                 mensagem: 'Todos os campos obrigatórios devem ser preenchidos.',
+                 dados: null
+            });
+        }
 
  //validação do e-mail
-             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-             if (!emailRegex.test(email)) {
+             if (!validarEmail(email)){
                 return response.status(400).json({
                     sucesso: false,
                     mensagem: 'E-mail inválido.',

@@ -27,7 +27,31 @@ module.exports = {
 
     async cadastrarUsuarios(request, response) {
         try {
-            const { tipo_usu, nome, email, senha, telefone } = request.body;
+            const { tipo_usu, 
+                nome,
+                email,
+                senha,
+                telefone
+             } = request.body;
+
+ //validação do e-mail
+             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+             if (!emailRegex.test(email)) {
+                return response.status(400).json({
+                    sucesso: false,
+                    mensagem: 'E-mail inválido.',
+                    dados: null
+                } );
+             }
+//verifica se o e-mail já existe 
+            const [emailExiste] = await db.query(`SELECT usu_id FROM usuairos WHERE email`)
+                if (emailExiste.length > 0) {
+                    return response.status(400).json({
+                        sucesso: false,
+                        mensagem: 'E-mail já cadastrado.',
+                        dados: null
+                    } );
+                }
             const hashedSenha = await bcrypt.hash(senha, 10); // 🔒 criptografa
             let dataTemp = '2025-09-04';
 

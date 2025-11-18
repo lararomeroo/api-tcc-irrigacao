@@ -85,53 +85,6 @@ module.exports = {
             });
         }
     },
-    async cadastrarClienteEnderecos(request, response) {
-        try {
-            const { idUsario, logradouro, num, bairro, complemento, idCidade, principal } = request.body;
-            const end_excluido = false;
-            let end_principal = principal;
-
-            const sqlChecarEndereco = ` SELECT COUNT (*) AS total_enderecos FROM cliente_enderecos WHERE usu_id = ? AND end_excluido = false `;
-            const [resultCheck] = await db.query (sqlChecarEndereco, [idUsario]);
-            const total_enderecos = resultCheck[0].total_enderecos;
-
-            if (total_enderecos === 0) {
-                end_principal = true;
-            } else{
-
-                if (end_principal === true) {
-                    const sqlUpdateEnd = ` UPDATE cliente_enderecos SET end_principal = 0 WHERE usu_id = ?;`;
-                    await db.query(sqlUpdateEnd, [idUsario]);
-                }
-            }
-
-            const sql = `
-                INSERT INTO cliente_enderecos 
-                    (usu_id, end_logradouro, end_num, end_bairro, end_complemento, cid_id, end_principal, end_excluido, criado_em)
-                VALUES 
-                    (?, ?, ?, ?, ?, ?, ?, ?);
-            `;
-
-            const values = [idUsario, logradouro, num, bairro, complemento, idCidade, end_principal, end_excluido];
-            
-            const [result] = await db.query(sql, values);
-
-            const end_id = result.insertId;
-
-            return response.status(200).json({
-                sucesso: true,
-                mensagem: 'Cadastro de endereco do cliente ${idUsuario} realizado com sucesso!',
-                dados: { end_id }
-            });
-
-        } catch (error) {
-            return response.status(500).json({
-                sucesso: false,
-                mensagem: 'Erro na requisição.',
-                dados: error.message
-            });
-        }
-    },
 
 
     async editarUsuarios(request, response) {

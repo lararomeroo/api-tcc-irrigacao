@@ -1,12 +1,14 @@
 const express = require('express'); 
 const router = express.Router(); 
 
-const locaisirrigacaoController = require('../controllers/locais_irrigacao'); 
+const UsuarioController = require('../controllers/usuario'); 
 
-router.get('/locais-irrigacao', locaisirrigacaoController.listarLocaisIrrigacao); 
-router.post('/locais-irrigacao', locaisirrigacaoController.cadastrarLocalIrrigacao); 
-router.patch('/locais-irrigacao/:id', locaisirrigacaoController.editarLocalIrrigacao); 
-router.delete('/locais-irrigacao/:id', locaisirrigacaoController.apagarLocalIrrigacao); 
+router.get('/usuarios', UsuarioController.listarUsuarios); 
+router.post('/usuarios', UsuarioController.cadastrarUsuarios); 
+router.patch('/usuarios/:id_usu', UsuarioController.editarUsuarios); 
+router.delete('/usuarios/:id_usu', UsuarioController.apagarUsuarios); 
 
+// Login CORRETO (POST)
+router.post('/login', UsuarioController.login);
 
 module.exports = router;

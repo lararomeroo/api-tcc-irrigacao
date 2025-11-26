@@ -10,4 +10,6 @@ router.post('/usuarios', UsuarioController.cadastrarUsuarios);
 // router.get('/login', UsuarioController.login);
 
 
+
+
 module.exports = router;

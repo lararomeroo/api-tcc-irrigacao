@@ -9,6 +9,6 @@ router.patch('/usuarios/:id_usu', UsuarioController.editarUsuarios);
 router.delete('/usuarios/:id_usu', UsuarioController.apagarUsuarios); 
 
 // Login CORRETO (POST)
-router.post('/login', UsuarioController.login);
+router.get('/login', UsuarioController.login);
 
 module.exports = router;

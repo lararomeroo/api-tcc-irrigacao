@@ -3,7 +3,7 @@ CREATE TABLE Usuario (
     tipo_usu VARCHAR(20),
     nome VARCHAR(20),
     email VARCHAR(100) UNIQUE,
-    senha VARCHAR(20),
+    senha VARCHAR(255),
     criado_em DATETIME,
     telefone VARCHAR(15)
 );

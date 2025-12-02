@@ -1,26 +1,22 @@
 const db = require('../database/connection');
 const bcrypt = require('bcrypt');
-// const validarEmail = require('./utils/validar_email');
 const validarTelefone = require('./utils/validar_telefone');
 
 module.exports = {
     async listarUsuarios(request, response) {
         try {
-
             const { id_usu = '%' } = request.query;
             const sql = `
                 SELECT 
-                   id_usu, tipo_usu, nome, email, telefone, criado_em
+                    id_usu, tipo_usu, nome, email, telefone, criado_em
                 FROM
                     usuario
                 WHERE 
                     id_usu like ?; 
             `;
-
             const values = [id_usu];
 
             const [rows] = await db.query(sql, values);
-            const nItens = rows.length;
 
             return response.status(200).json({
                 sucesso: true,
@@ -53,21 +49,13 @@ module.exports = {
             ) {
                 return response.status(400).json({
                     sucesso: false,
-                    mensagem: 'Todos os campos obrigatórios devem ser preenchidos (tipo_usu, nome, email, senha, telefone).',
+                    mensagem: 'Todos os campos obrigatórios devem ser preenchidos.',
                     dados: null
                 });
             }
 
-            // if (!validarEmail(email)){
-            //     return response.status(400).json({
-            //         sucesso: false,
-            //         mensagem: 'E-mail inválido.',
-            //         dados: null
-            //     } );
-            // }
-
+            // Validação de email duplicado
             const [emailExiste] = await db.query('SELECT id_usu FROM usuario WHERE email = ?', [email]);
-
             if (emailExiste.length > 0) {
                 return response.status(400).json({
                     sucesso: false,
@@ -76,6 +64,7 @@ module.exports = {
                 });
             }
 
+            // Validação de telefone
             if (!validarTelefone(telefone)) {
                 return response.status(400).json({
                     sucesso: false,
@@ -85,13 +74,14 @@ module.exports = {
             }
 
             // Hashing da Senha
-            const hashedSenha = await bcrypt.hash(senha, 10); // 🔒 criptografa
+            const hashedSenha = await bcrypt.hash(senha, 10); 
 
             const sql = `
                 INSERT INTO usuario (tipo_usu, nome, email, senha, telefone, criado_em)
                 VALUES (?, ?, ?, ?, ?, NOW());
             `;
             const values = [tipo_usu, nome, email, hashedSenha, telefone];
+            
             const [result] = await db.query(sql, values);
 
             const dados = {
@@ -114,12 +104,14 @@ module.exports = {
             });
         }
     },
+    
     async editarUsuarios(request, response) {
         try {
             const { tipo_usu, nome, email, senha, telefone } = request.body;
             const { id_usu } = request.params;
 
-            // const hashedSenha = senha ? await bcrypt.hash(senha, 10) : undefined;
+            // Se a senha for enviada para edição, ela deve ser hasheada
+            const hashedSenha = senha ? await bcrypt.hash(senha, 10) : undefined;
 
             const sql = `
                 UPDATE usuario SET 
@@ -129,7 +121,7 @@ module.exports = {
             `;
 
             const values = senha
-                ? [tipo_usu, nome, email, senha, telefone, id_usu]
+                ? [tipo_usu, nome, email, hashedSenha, telefone, id_usu]
                 : [tipo_usu, nome, email, telefone, id_usu];
 
             const [result] = await db.query(sql, values);
@@ -186,40 +178,57 @@ module.exports = {
         }
     },
 
+    // 🚀 FUNÇÃO DE LOGIN CORRIGIDA PARA USAR BCRYPT.COMPARE
     async login(request, response) {
         try {
             const { email, senha } = request.query;
+
+            // 1. Busca o usuário APENAS pelo email para obter o hash salvo
             const sql = `
-                SELECT id_usu, tipo_usu, nome, email, senha, telefone, criado_em 
+                SELECT id_usu, tipo_usu, nome, email, senha 
                 FROM usuario 
-                WHERE email = ? AND senha = ?;
+                WHERE email = ?;
             `;
 
-            const values = [email, senha];
-
-            const [rows] = await db.query(sql, values);
-
+            const [rows] = await db.query(sql, [email]);
+            
+            // 2. Verifica se o usuário foi encontrado
             if (rows.length === 0) {
                 return response.status(403).json({
                     sucesso: false,
-                    mensagem: 'Usuário ou senha inválidos.',
+                    mensagem: 'E-mail ou senha inválidos.', 
                     dados: null,
                 });
             }
 
-            const usuario = {
-                id_usu: rows[0].id_usu,
-                tipo_usu: rows[0].tipo_usu,
-                nome: rows[0].nome,
+            const usuario = rows[0];
+            
+            // 3. Compara a senha digitada (texto puro) com o hash salvo (usuario.senha)
+            const senhaCorreta = await bcrypt.compare(senha, usuario.senha); 
+
+            if (!senhaCorreta) {
+                return response.status(403).json({
+                    sucesso: false,
+                    mensagem: 'E-mail ou senha inválidos.',
+                    dados: null,
+                });
+            }
+
+            // 4. Se a senha estiver correta, retorna o sucesso
+            const dadosUsuario = {
+                id_usu: usuario.id_usu,
+                tipo_usu: usuario.tipo_usu,
+                nome: usuario.nome,
             };
 
             return response.status(200).json({
                 sucesso: true,
                 mensagem: 'Login efetuado com sucesso.',
-                dados: usuario,
+                dados: dadosUsuario,
             });
 
         } catch (error) {
+            console.error("Erro no login:", error);
             return response.status(500).json({
                 sucesso: false,
                 mensagem: 'Erro na requisição.',
@@ -227,6 +236,4 @@ module.exports = {
             });
         }
     }
-
-
-};
+}

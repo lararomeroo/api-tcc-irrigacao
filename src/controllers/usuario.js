@@ -107,22 +107,23 @@ module.exports = {
     
     async editarUsuarios(request, response) {
         try {
-            const { tipo_usu, nome, email, senha, telefone } = request.body;
+            const { tipo_usu, nome, email, telefone } = request.body;
             const { id_usu } = request.params;
 
             // Se a senha for enviada para edição, ela deve ser hasheada
-            const hashedSenha = senha ? await bcrypt.hash(senha, 10) : undefined;
+            // const hashedSenha = senha ? await bcrypt.hash(senha, 10) : undefined;
 
             const sql = `
                 UPDATE usuario SET 
-                tipo_usu = ?, nome = ?, email = ?, 
-                ${senha ? "senha = ?," : ""} telefone = ?
+                tipo_usu = ?, nome = ?, email = ?, telefone = ?
                 WHERE id_usu = ?;
             `;
 
-            const values = senha
-                ? [tipo_usu, nome, email, hashedSenha, telefone, id_usu]
-                : [tipo_usu, nome, email, telefone, id_usu];
+            // const values = senha
+            //     ? [tipo_usu, nome, email, hashedSenha, telefone, id_usu]
+            //     : [tipo_usu, nome, email, telefone, id_usu]; 
+
+            const values = [tipo_usu, nome, email, telefone, id_usu];
 
             const [result] = await db.query(sql, values);
 
